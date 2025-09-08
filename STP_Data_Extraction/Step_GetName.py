@@ -38,21 +38,25 @@ def getNamesComponents(filename):
     """Returns list of tuples (topods_shape, label, color)
     Use OCAF.
     """
+    print(f"getNamesComponents: Starting with file {filename}")
     if not os.path.isfile(filename):
         raise FileNotFoundError(f"{filename} not found.")
     # the list:
     output_shapes = {}
     elements = []
 
+    print("getNamesComponents: Creating document...")
     # create an handle to a document
     doc = TDocStd_Document(TCollection_ExtendedString("pythonocc-doc"))
 
+    print("getNamesComponents: Setting up tools...")
     # Get root assembly
     shape_tool = XCAFDoc_DocumentTool_ShapeTool(doc.Main())
     color_tool = XCAFDoc_DocumentTool_ColorTool(doc.Main())
     layer_tool = XCAFDoc_DocumentTool_LayerTool(doc.Main())
     # mat_tool = XCAFDoc_DocumentTool_MaterialTool(doc.Main())
 
+    print("getNamesComponents: Creating STEP reader...")
     step_reader = STEPCAFControl_Reader()
     step_reader.SetColorMode(True)
     step_reader.SetLayerMode(True)
@@ -60,9 +64,16 @@ def getNamesComponents(filename):
     step_reader.SetMatMode(True)
     step_reader.SetGDTMode(True)
 
+    print("getNamesComponents: Reading STEP file...")
     status = step_reader.ReadFile(filename)
+    print(f"getNamesComponents: ReadFile status: {status}")
     if status == IFSelect_RetDone:
+        print("getNamesComponents: Transferring to document...")
         step_reader.Transfer(doc)
+        print("getNamesComponents: Transfer completed")
+    else:
+        print(f"getNamesComponents: Failed to read file, status: {status}")
+        return []
 
     locs = []
 

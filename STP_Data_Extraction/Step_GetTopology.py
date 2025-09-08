@@ -33,8 +33,6 @@ from OCC.Core.TopoDS import (
     TopoDS_Shape,
     TopoDS_Compound,
     TopoDS_CompSolid,
-    topods_Edge,
-    topods_Vertex,
     TopoDS_Iterator,
 )
 from OCC.Core.GCPnts import (
@@ -67,7 +65,7 @@ class WireExplorer:
     def _loop_topo(self, edges: Optional[bool] = True) -> Iterator[Any]:
         if self.done:
             self._reinitialize()
-        topology_type = topods_Edge if edges else topods_Vertex
+        topology_type = topods.Edge if edges else topods.Vertex
         seq = []
 
         while self.wire_explorer.More():
@@ -181,7 +179,7 @@ class TopologyExplorer:
             filter_orientation_seq: List = []
             filter_orientation_hash_codes = {}
             for i in seq:
-                i_hash_code = i.HashCode(MAX_32_BIT_INT)
+                i_hash_code = hash(i)
                 if not i_hash_code in filter_orientation_hash_codes:
                     filter_orientation_seq.append(i)
                     filter_orientation_hash_codes[i_hash_code] = [
@@ -323,7 +321,7 @@ class TopologyExplorer:
             topo_entity = self.topology_factory[topology_type_2](
                 topology_iterator.Value()
             )
-            topo_entity_hash_code = topo_entity.HashCode(MAX_32_BIT_INT)
+            topo_entity_hash_code = hash(topo_entity)
             # return the entity if not in set
             # to assure we're not returning entities several times
             if not topo_entity in topo_set:
@@ -508,7 +506,7 @@ def dump_topology_to_string(
     brt = BRep_Tool()
     s = shape.ShapeType()
     if s == TopAbs_VERTEX:
-        pnt = brt.Pnt(topods_Vertex(shape))
+        pnt = brt.Pnt(topods.Vertex(shape))
         print(".." * level + f"<Vertex {hash(shape)}: {pnt.X()} {pnt.Y()} {pnt.Z()}>\n")
     if s == TopAbs_COMPOUND or s == TopAbs_SOLID:
         print(".." * level, end="")
